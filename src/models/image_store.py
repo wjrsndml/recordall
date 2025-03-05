@@ -1,7 +1,6 @@
 from PIL import Image as PILImage
 from io import BytesIO
-import cv2
-import numpy as np
+import pyautogui
 from collections import OrderedDict
 from datetime import datetime
 from sqlalchemy.orm import Session
@@ -15,9 +14,9 @@ class ImageStore:
     
     def capture_screen(self):
         """捕获屏幕截图并返回PIL Image对象"""
-        # 使用OpenCV捕获屏幕
-        screen = cv2.cvtColor(np.array(cv2.getWindowCapture(0)), cv2.COLOR_BGR2RGB)
-        return PILImage.fromarray(screen)
+        # 使用pyautogui捕获屏幕
+        screenshot = pyautogui.screenshot()
+        return screenshot
     
     def save_image(self, pil_image: PILImage) -> int:
         """将PIL Image保存为WebP格式并存入数据库"""
