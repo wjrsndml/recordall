@@ -3,6 +3,7 @@ import asyncio
 from typing import List
 from PIL import Image as PILImage
 from models.ocr_result import OCRResult, OCRStore
+import numpy as np
 
 class OCRService:
     def __init__(self, ocr_store: OCRStore):
@@ -43,8 +44,8 @@ class OCRService:
         print('转换图片格式为RGB...')
         try:
             # 转换为RGB格式并获取numpy数组
-            image_array = image.convert('RGB')
-            print(f'图片转换完成，当前格式: {image_array.mode}, 尺寸: {image_array.size}')
+            image_array = np.array(image.convert('RGB'))
+            print(f'图片转换完成，当前格式: RGB, 尺寸: {image_array.shape}')
             
             print('开始OCR识别...')
             # 执行OCR识别
