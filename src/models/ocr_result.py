@@ -42,15 +42,26 @@ class OCRStore:
     
     def save_results(self, image_id: int, results: List[OCRResult]):
         """保存OCR识别结果到数据库"""
+        print(f'准备保存OCR结果到数据库，图片ID: {image_id}, 结果数量: {len(results)}')
         with Session(self.database.engine) as session:
-            for result in results:
-                session.add(result.to_db(image_id))
-            session.commit()
+            try:
+                for result in results:
+                    ocr_text = result.to_db(image_id)
+                    print(f'保存OCR文本: {ocr_text.text}, 置信度: {ocr_text.confidence}')
+                    session.add(ocr_text)
+                session.commit()
+                print('OCR结果保存成功')
+            except Exception as e:
+                print(f'保存OCR结果时出错: {e}')
+                session.rollback()
+                raise
     
     def get_results(self, image_id: int) -> List[OCRResult]:
         """获取指定图片的OCR识别结果"""
+        print(f'获取图片ID {image_id} 的OCR结果')
         with Session(self.database.engine) as session:
             ocr_texts = session.query(OCRText).filter(OCRText.image_id == image_id).all()
+            print(f'找到 {len(ocr_texts)} 条OCR记录')
             return [OCRResult.from_db(text) for text in ocr_texts]
     
     def search_text(self, keyword: str) -> List[int]:

@@ -17,6 +17,7 @@ def test_database_storage():
     """测试数据库中的图片和OCR结果存储"""
     # 初始化数据库连接
     db = Database()
+    print('数据库连接初始化完成')
     
     with Session(db.engine) as session:
         try:
@@ -27,6 +28,7 @@ def test_database_storage():
             for idx, img in enumerate(images):
                 print(f"\n检查图片 #{idx + 1}:")
                 print(f"时间戳: {img.timestamp}")
+                print(f"图片ID: {img.id}")
                 
                 # 验证图片数据
                 if img.data:
@@ -35,12 +37,14 @@ def test_database_storage():
                         image = PILImage.open(io.BytesIO(img.data))
                         print(f"图片格式: {image.format}")
                         print(f"图片尺寸: {image.size}")
+                        print(f"图片模式: {image.mode}")
                     except Exception as e:
                         print(f"图片数据损坏: {e}")
                 else:
                     print("警告: 图片数据为空")
 
                 # 检查关联的OCR结果
+                print(f"正在查询图片ID {img.id} 的OCR结果...")
                 ocr_results = session.query(OCRText).filter(OCRText.image_id == img.id).all()
                 print(f"OCR结果数量: {len(ocr_results)}")
 
@@ -51,6 +55,7 @@ def test_database_storage():
 
         except Exception as e:
             print(f"测试过程中出现错误: {e}")
+            raise
 
 if __name__ == '__main__':
     test_database_storage()

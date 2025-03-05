@@ -5,16 +5,14 @@ from models import Database, ImageStore
 from models.ocr_result import OCRStore
 from services.ocr_service import OCRService
 from views.main_window import MainWindow
+from qasync import QEventLoop
 
-async def main():
+def main():
     # 初始化数据库和存储
     database = Database()
     image_store = ImageStore(database)
     ocr_store = OCRStore(database)
     ocr_service = OCRService(ocr_store)
-    
-    # 启动OCR服务
-    asyncio.create_task(ocr_service.start_processing())
     
     # 创建Qt应用
     app = QApplication(sys.argv)
@@ -23,13 +21,21 @@ async def main():
     window = MainWindow(image_store, ocr_service)
     window.show()
     
+    # 创建QEventLoop并设置为默认事件循环
+    loop = QEventLoop(app)
+    asyncio.set_event_loop(loop)
+    
+    # 启动OCR服务
+    loop.create_task(ocr_service.start_processing())
+    
     # 运行事件循环
     try:
-        await app.exec()
+        loop.run_forever()
     finally:
         # 清理资源
         ocr_service.stop_processing()
         image_store.clear_cache()
+        loop.close()
 
 if __name__ == '__main__':
-    asyncio.run(main())
+    main()

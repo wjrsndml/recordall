@@ -15,7 +15,7 @@ class MainWindow(QMainWindow):
         self.record_timer = QTimer()
         self.record_timer.timeout.connect(self._capture_screen)
         self.failed_count = 0
-        self.viewer_window = None  # 添加viewer_window实例变量
+        self.viewer_window = None
         
         self._init_ui()
     
@@ -77,7 +77,10 @@ class MainWindow(QMainWindow):
             print('屏幕捕获成功，正在保存图片...')
             image_id = self.image_store.save_image(image)
             print(f'图片保存成功，ID: {image_id}，正在添加到OCR队列...')
-            asyncio.create_task(self.ocr_service.add_image(image_id, image))
+            # 获取当前事件循环
+            loop = asyncio.get_event_loop()
+            # 在当前事件循环中创建任务
+            loop.create_task(self.ocr_service.add_image(image_id, image))
             print('图片已添加到OCR队列')
             self.failed_count = 0
         except Exception as e:
